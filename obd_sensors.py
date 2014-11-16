@@ -257,6 +257,7 @@ SENSORS = [
     Sensor("Fuel_Type", " Fuel Type              ", "0151", pid151, "BitEnc."),
     Sensor("Fuel_pressure", " Fuel rail pressure     ", "0123", FuelRailPressD, "kPa"),
     Sensor("fuel_rate", " Engine fuel rate       ", "015E", pid15e, "L/h"),
+    Sensor("mpg"," Miles per Gallon", "0000", cpass, "mpg"),   #this one is a dummy to accomidate the 'fake' mpg reading
 ]
 
 
