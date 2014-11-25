@@ -41,10 +41,11 @@ class OBDLogger():
 		self.sensor_list = []
 		for sensor in log_sensors:
 			self.add_log_sensor(sensor)
-		self.panel = panel()
+		#self.panel = panel()
 
 	def connect(self):
-		port_names = scanSerial()  # Check all serial ports.
+		#port_names = scanSerial()  # Check all serial ports.
+		port_names = ['/dev/tty.OBDII-Port','/dev/tty.usbserial-A60292K6','/dev/cu.usbserial-A60292K6'] # scanSerial errors for me
 		print port_names  # print available ports
 		for port in port_names:
 			self.port = obd_io.OBDPort(port, None, 2, 2)
@@ -82,30 +83,25 @@ class OBDLogger():
 		if self.port is None:
 			return None  # leave if there is no connection
 
-		print "Logging started"
+		print "Started"
 
 		while 1:
 			result_set = {}
 			for index in self.sensor_list:  # log all of our sensors data from sensor_list
 				(name, value, unit) = self.port.sensor(index)
-				log_data = log_data + "," + str(value)  # add to log string
-				result_set[obd_sensors.SENSORS[index].shortname] = value  # add data to a result set for more manipulation
-				# we don't want to log "NODATA" if the car drops the OBDII connection rather exit the program
-			if "NODATA" in result_set.values():
-				print "Connection Error - Disconnecting"
-				sleep(3)  # show the message
-				sys.exit()  # exit the program
+				result_set[obd_sensors.SENSORS[index].shortname] = value  # add data to a result
 			result_set['mpg'] = self.get_mpg(result_set["speed"], result_set["maf"])  # calculate mpg
 			
 			os.system('clear')
 			for name in self.sensor_log:
 				val = result_set[name]
 				sen = self.get_sensor(name)
-				print sen.name,':',val,sen.unit
+				print sen.name.strip(),':',val,sen.unit
+			sleep(1)
 
 
 
-log_sensors = ["speed", "mpg", "rpm", "throttle_pos", "load", "temp", "intake_air_temp", "manifold_pressure", "maf"]
+log_sensors = ["speed", "mpg", "rpm", "throttle_pos", "load", "temp", "intake_air_temp", "manifold_pressure", "maf", "o211", "fuel_pressure", "pressure"]
 obd = OBDLogger(log_sensors)
 obd.connect()
 if not obd.is_connected():
