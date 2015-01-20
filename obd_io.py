@@ -181,9 +181,9 @@ class OBDPort:
             while 1:
                 c = self.port.read(1)
                 if len(c) == 0:
-                    if (repeat_count == 5):
+                    if (repeat_count > 2):
                         break
-                    print "Got nothing\n"
+                    #print "Got nothing\n"
                     repeat_count = repeat_count + 1
                     continue
 

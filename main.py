@@ -44,8 +44,8 @@ class OBDLogger():
 		#self.panel = panel()
 
 	def connect(self):
-		#port_names = scanSerial()  # Check all serial ports.
-		port_names = ['/dev/tty.OBDII-Port','/dev/tty.usbserial-A60292K6','/dev/cu.usbserial-A60292K6'] # scanSerial errors for me
+		port_names = scanSerial()   #  if this breaks, use a different
+		port_names = ['/dev/tty.OBDII-Port','/dev/cu.OBDII_Port'] #scanSerial()  # Check all serial ports.
 		print port_names  # print available ports
 		for port in port_names:
 			self.port = obd_io.OBDPort(port, None, 2, 2)
@@ -86,25 +86,33 @@ class OBDLogger():
 		print "Started"
 
 		while 1:
-			result_set = {}
-			for index in self.sensor_list:  # log all of our sensors data from sensor_list
-				(name, value, unit) = self.port.sensor(index)
-				result_set[obd_sensors.SENSORS[index].shortname] = value  # add data to a result
-			result_set['mpg'] = self.get_mpg(result_set["speed"], result_set["maf"])  # calculate mpg
-			
-			os.system('clear')
-			for name in self.sensor_log:
-				val = result_set[name]
-				sen = self.get_sensor(name)
-				print sen.name.strip(),':',val,sen.unit
-			sleep(1)
+			try:
+				result_set = {}
+				for index in self.sensor_list:  # log all of our sensors data from sensor_list
+					(name, value, unit) = self.port.sensor(index)
+					if value is str and value[:2] == "NO":
+						value = 0
+					result_set[obd_sensors.SENSORS[index].shortname] = value  # add data to a result
+				result_set['mpg'] = self.get_mpg(result_set["speed"], result_set["maf"])  # calculate mpg
+				
+				os.system('clear')
+				for name in self.sensor_log:
+					val = result_set[name]
+					sen = self.get_sensor(name)
+					print sen.name.strip(),':',val,sen.unit
+				sleep(0.3)
+			except TypeError:
+				self.port = None
+				self.connect()
 
 
 
-log_sensors = ["speed", "mpg", "rpm", "throttle_pos", "load", "temp", "intake_air_temp", "manifold_pressure", "maf", "o211", "fuel_pressure", "pressure"]
+log_sensors = ["speed", "mpg", "rpm", "temp", "maf"]
 obd = OBDLogger(log_sensors)
 obd.connect()
 if not obd.is_connected():
 	print "Not connected"
 obd.run()
+
+
 

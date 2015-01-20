@@ -26,7 +26,7 @@ def hex_to_int(stri):
 	try:
 		i = int(stri,16)
 	except:
-		i = stri
+		i = 0
 	return i
 
 
